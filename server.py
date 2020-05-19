@@ -120,10 +120,17 @@ def home():
     return redirect(url_for('login'))
 
 
+# http://localhost:5000/- this will be error 404 page
+@app.route('/')
+def error_404():
+    return render_template('main/errors/404.html')
 
-locations = [
-    -3333, 22
-]
+
+
+locations = ([
+    [52.403049, 16.950697, 1586015671], 
+    [52.403001, 16.950648, 1586015676]
+])
 
 
 # http://localhost:5000/search/<device>'/

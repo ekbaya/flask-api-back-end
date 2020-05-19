@@ -14,7 +14,7 @@
  <!-- Layout styles -->
  <link rel="stylesheet" href="{{ url_for('static', filename='css/demo/style.css') }}">
  <!-- End layout styles -->
- <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.png') }}" />
+ <link rel="shortcut icon" href="{{ url_for('static', filename='images/corona.png') }}" />
 </head>
 <body>
 <script src="{{ url_for('static', filename='js/preloader.js') }}"></script>
@@ -23,7 +23,7 @@
     <aside class="mdc-drawer mdc-drawer--dismissible mdc-drawer--open">
       <div class="mdc-drawer__header">
         <a href="index.html" class="brand-logo">
-          <img src="../assets/images/logo.svg" alt="logo">
+          <img src="{{url_for('static', filename='images/logo.svg')}}" alt="logo">
         </a>
       </div>
       <div class="mdc-drawer__content">
