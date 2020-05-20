@@ -19,7 +19,7 @@ app = Flask(__name__)
 app.secret_key = 'd6bf0a5f-9c2e-494d-84e1-d347a8466931'
 
 # Database connection details
-app.config['MYSQL_HOST'] = 'http://185.141.63.56:3200'
+app.config['MYSQL_HOST'] = '185.141.63.56:3200'
 app.config['MYSQL_USER'] = 'coviduser'
 app.config['MYSQL_PASSWORD'] = 'kapscovidxz20'
 app.config['MYSQL_DB'] = 'id10903668_location'
