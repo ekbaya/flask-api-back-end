@@ -11,6 +11,7 @@ import os
 from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
+from flask import jsonify
 
 
 app = Flask(__name__)
@@ -19,7 +20,7 @@ app = Flask(__name__)
 app.secret_key = 'd6bf0a5f-9c2e-494d-84e1-d347a8466931'
 
 # Database connection details
-app.config['MYSQL_HOST'] = '185.141.63.56:3200'
+app.config['MYSQL_HOST'] = 'http://185.141.63.56:3200'
 app.config['MYSQL_USER'] = 'coviduser'
 app.config['MYSQL_PASSWORD'] = 'kapscovidxz20'
 app.config['MYSQL_DB'] = 'id10903668_location'
@@ -124,6 +125,41 @@ def home():
 @app.route('/')
 def error_404():
     return render_template('main/errors/404.html')
+
+
+@app.route('/addlocation', methods=['POST'])
+def addlocation():
+    try:
+        json_request = request.json
+        device = json_request['device']
+        latitude = json_request['latitude']
+        longitude = json_request['longitude']
+        time_stamp = json_request['time_stamp']
+
+        if device and latitude and longitude and time_stamp and request.method == 'POST':
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('INSERT INTO locations VALUES (%s, %s, %s, %s)', (device, latitude, longitude, time_stamp,))
+            mysql.connection.commit()
+            resp = jsonify('Location added successifully')
+            resp.status_code = 200
+            return resp
+        else:
+            return not_found()
+
+    except Exception as e:
+        print(e)
+
+
+@app.errorhandler(404)
+def not_found(error=None):
+    message = {
+        'status': 404,
+        'message': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
+
+    return resp
 
 
 
