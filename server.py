@@ -200,7 +200,7 @@ def addUser():
                 pw_hash = bcrypt.generate_password_hash(password)
 
                 now = datetime.datetime.now()
-                date = now.strftime("%d-%m-%Y %H:%M:%S")
+                date = now.strftime("%Y-%m-%d %H:%M:%S")
 
                 cursor.execute('INSERT INTO users VALUES (NULL, %s, %s, %s)', (email, pw_hash, date,))
                 mysql.connection.commit()
