@@ -34,7 +34,7 @@
         <div class="mdc-list-group">
           <nav class="mdc-list mdc-drawer-menu">
             <div class="mdc-list-item mdc-drawer-item">
-              <a class="mdc-drawer-link" href="../../index.html">
+              <a class="mdc-drawer-link" href="{{url_for('home')}}">
                 <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">home</i>
                 Dashboard
               </a>
@@ -65,7 +65,7 @@
               <button class="mdc-button mdc-menu-button">
                 <span class="d-flex align-items-center">
                   <span class="figure">
-                    <img src="{{ulr_for('static', filename= 'images/faces/elias.jpeg')}}" alt="user" class="user">
+                    <img src="{{url_for('static', filename= 'images/faces/elias.jpeg')}}" alt="user" class="user">
                   </span>
                   <span class="user-name">Elias Baya</span>
                 </span>
@@ -296,7 +296,7 @@
   <script src="{{url_for('static', filename= 'vendors/chartjs/Chart.min.js')}}"></script>
   <!-- End plugin js for this page-->
   <!-- inject:js -->
-  <script src="{{url_for('static', filename('js/material.js'))}}"></script>
+  <script src="{{url_for('static', filename=('js/material.js'))}}"></script>
   <script src="{{url_for('static', filename='js/misc.js')}}"></script>
   <!-- endinject -->
   <!-- Custom js for this page-->
