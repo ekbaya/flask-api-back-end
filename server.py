@@ -25,10 +25,10 @@ bcrypt = Bcrypt(app)
 app.secret_key = 'd6bf0a5f-9c2e-494d-84e1-d347a8466931'
 
 # Database connection details
-app.config['MYSQL_HOST'] = 'ekbayaz.mysql.pythonanywhere-services.com'
-app.config['MYSQL_USER'] = 'ekbayaz'
-app.config['MYSQL_PASSWORD'] = 'Eliasdavid@1223'
-app.config['MYSQL_DB'] = 'ekbayaz$covid_contact_tracing'
+app.config['MYSQL_HOST'] = 'localhost'
+app.config['MYSQL_USER'] = 'root'
+app.config['MYSQL_PASSWORD'] = ''
+app.config['MYSQL_DB'] = 'mysql'
 
 # Intialize MySQL
 mysql = MySQL(app)

@@ -34,7 +34,7 @@
         <div class="mdc-list-group">
           <nav class="mdc-list mdc-drawer-menu">
             <div class="mdc-list-item mdc-drawer-item">
-              <a class="mdc-drawer-link" href="../../index.html">
+              <a class="mdc-drawer-link" href="{{url_for('home')}}">
                 <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">home</i>
                 Dashboard
               </a>
@@ -46,7 +46,7 @@
               </a>
             </div>
             <div class="mdc-list-item mdc-drawer-item">
-              <a class="mdc-drawer-link" href="../../pages/charts/chartjs.html">
+              <a class="mdc-drawer-link" href="{{url_for('charts')}}">
                 <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">pie_chart_outlined</i>
                 Charts
               </a>
@@ -355,7 +355,7 @@
   <!-- Plugin js for this page-->
   <!-- End plugin js for this page-->
   <!-- inject:js -->
-  <script src="{{url_for('static', filename('js/material.js'))}}"></script>
+  <script src="{{url_for('static', filename=('js/material.js'))}}"></script>
   <script src="{{url_for('static', filename='js/misc.js')}}"></script>
   <!-- endinject -->
   <!-- Custom js for this page-->
