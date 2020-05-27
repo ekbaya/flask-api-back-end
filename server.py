@@ -208,6 +208,7 @@ def load_sick_traces():
 # http://heartbeat/<offset>/ 
 @app.route('/heartbeat/<offset>')
 def heartbeat(offset):
+    load_sick_traces()
     offset = int(offset)
     if offset >= 0 and offset < len(sick_traces):
         return json.dumps(sick_traces[offset:])
