@@ -2,7 +2,7 @@
 #
 # Elias Baya <eliasbaya1223@gmail.com>
 # @version		1.0
-# @copyright	Copyright (C) 
+# @copyright	Copyright (C)
 #  @license		GNU General Public License version 2 or later; see LICENSE.txt
 
 from flask import Flask, render_template, request, redirect, url_for, session
@@ -12,18 +12,23 @@ from flask_mysqldb import MySQL
 import MySQLdb.cursors
 import re
 from flask import jsonify
+from flask_bcrypt import Bcrypt
+import datetime
+
 
 
 app = Flask(__name__)
+
+bcrypt = Bcrypt(app)
 
 # Secret key (can be anything, it's for extra protection)
 app.secret_key = 'd6bf0a5f-9c2e-494d-84e1-d347a8466931'
 
 # Database connection details
-app.config['MYSQL_HOST'] = 'http://185.141.63.56:3200'
-app.config['MYSQL_USER'] = 'coviduser'
-app.config['MYSQL_PASSWORD'] = 'kapscovidxz20'
-app.config['MYSQL_DB'] = 'id10903668_location'
+app.config['MYSQL_HOST'] = 'ekbayaz.mysql.pythonanywhere-services.com'
+app.config['MYSQL_USER'] = 'ekbayaz'
+app.config['MYSQL_PASSWORD'] = 'Eliasdavid@1223'
+app.config['MYSQL_DB'] = 'ekbayaz$covid_contact_tracing'
 
 # Intialize MySQL
 mysql = MySQL(app)
@@ -49,7 +54,7 @@ def login():
         if account:
             # Create session data, we can access this data in other routes
             session['loggedin'] = True
-            session['id'] = account['id']
+            session['id'] = account['user_id']
             session['email'] = account['email']
             session['firstname'] = account['firstname']
             session['lastname'] = account['lastname']
@@ -90,9 +95,9 @@ def register():
           # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
         cursor.execute('SELECT * FROM accounts WHERE email = %s', (email,))
-        account = cursor.fetchone
+
         # If account exists show error and validation checks
-        if account:
+        if cursor.fetchone():
             msg = 'Account already exists!'
         elif not re.match(r'[^@]+@[^@]+\.[^@]+', email):
             msg = 'Invalid email address!'
@@ -100,7 +105,9 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            cursor.execute('INSERT INTO accounts VALUES (NULL, %s, %s, %s, %s)', (firstname, lastname, email, password,))
+            pw_hash = bcrypt.generate_password_hash(password)
+
+            cursor.execute('INSERT INTO accounts VALUES (%s, %s, %s, %s, %s)', (None, firstname, lastname, email, pw_hash,))
             mysql.connection.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
@@ -127,29 +134,42 @@ def error_404():
     return render_template('main/errors/404.html')
 
 
-@app.route('/addlocation', methods=['POST'])
+
+# http://localhost:5000/admin/locations_table- this will open tables page
+@app.route('/admin/locations_table')
+def locations_table():
+    return render_template('main/pages/tables/locations-table.html')
+
+
+
+
+# http://localhost:5000/admin/charts- this will open tables page
+@app.route('/admin/charts')
+def charts():
+    return render_template('main/pages/charts/chartjs.html')
+
+
+@app.route('/addlocation/', methods=['POST'])
 def addlocation():
     try:
-        json_request = request.json
-        device = json_request['device']
-        latitude = json_request['latitude']
-        longitude = json_request['longitude']
-        time_stamp = json_request['time_stamp']
+        data = request.get_json(force=True)
+        device = data['device']
+        latitude = data['latitude']
+        longitude = data['longitude']
+        time_stamp = data['time_stamp']
 
         if device and latitude and longitude and time_stamp and request.method == 'POST':
             cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
             cursor.execute('INSERT INTO locations VALUES (%s, %s, %s, %s)', (device, latitude, longitude, time_stamp,))
             mysql.connection.commit()
-            resp = jsonify('Location added successifully')
-            resp.status_code = 200
-            return resp
+            resp = {'message':'Location added successifully', 'status_code': 200}
+            return jsonify(resp)
         else:
             return not_found()
-
     except Exception as e:
-        print(e)
-
-
+           print(e)
+           return not_found()
+    return not_found()
 @app.errorhandler(404)
 def not_found(error=None):
     message = {
@@ -161,29 +181,106 @@ def not_found(error=None):
 
     return resp
 
+@app.route('/addUser/', methods=['GET','POST'])
+def addUser():
+    try:
+        data = request.get_json(force=True)
+        email = data['email']
+        password = data['password']
+
+        if email and password and request.method == 'POST':
+             # Check if account exists using MySQL
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+
+            # If account exists show error and validation checks
+            if not cursor.fetchone():
+                # Account doesnt exists and the form data is valid, now insert new account into accounts table
+
+                pw_hash = bcrypt.generate_password_hash(password)
+
+                now = datetime.datetime.now()
+                date = now.strftime("%d-%m-%Y %H:%M:%S")
+
+                cursor.execute('INSERT INTO users VALUES (NULL, %s, %s, %s)', (email, pw_hash, date,))
+                mysql.connection.commit()
+                resp = {'message':'You have successfully registered!', 'status_code':201, 'success':'true',
+                'data': {'email': email}}
+                return jsonify(resp)
+            else:
+                resp = {'message':'Email is already registered ', 'status_code': 200, 'success':'false',
+                'data': {'email':'No email registered'}}
+                return jsonify(resp)
+
+        else:
+            return not_found()
+    except Exception as e:
+           print(e)
+           return not_found()
+    return not_found()
+
+
+@app.route('/loginUser/', methods=['GET','POST'])
+def loginUser():
+    try:
+        data = request.get_json(force=True)
+        email = data['email']
+        password = data['password']
+
+        if email and password and request.method == 'POST':
+             # Check if account exists using MySQL
+            cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+            cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+
+            # If account exists show error and validation checks
+            if not cursor.fetchone():
+                # Account doesnt exists
+                resp = {'message':'The email u have entered is not registered', 'status_code':200, 'success':'false',
+                'data': {'email': 'email is not registered'}}
+                return jsonify(resp)
+            else:
+                cursor.execute('SELECT * FROM users WHERE email = %s', (email,))
+                result_row = cursor.fetchone()
+                pw_hash = result_row['password']
+
+                if bcrypt.check_password_hash(pw_hash, password):
+                    resp = {'message':'Logged in successfully', 'status_code': 200, 'success':'true',
+                    'data': {'email': email}}
+                    return jsonify(resp)
+                else:
+                    resp = {'message':'Invalid email or password ', 'status_code': 200, 'success':'false',
+                    'data': {'email':'No email registered'}}
+                    return jsonify(resp)
+        else:
+            return not_found()
+    except Exception as e:
+           print(e)
+           return not_found()
+    return not_found()
 
 
 locations = ([
-    [52.403049, 16.950697, 1586015671], 
+    [52.403049, 16.950697, 1586015671],
     [52.403001, 16.950648, 1586015676]
 ])
 
 
 # http://localhost:5000/search/<device>'/
-@app.route('/search/<device>', methods=['GET', 'POST'])
-def search(device):
-    # Output message if something goes wrong...
-     msg = ''
-     cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-     cursor.execute('SELECT latitude, longitude, time_stamp FROM locations WHERE device = %s', (device,))
-     locations_history = cursor.fetchall()
+@app.route('/search/', methods=['GET','POST'])
+def search(data):
+    if request.method == "POST":
+        # Output message if something goes wrong...
+         msg = ''
+         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+         cursor.execute('SELECT latitude, longitude, time_stamp FROM locations WHERE device = %s', (data,))
+         locations_history = cursor.fetchall()
 
-     if locations_history:
-        msg = 'Locations fetched succesifully'
-        return render_template('main/pages/tables/locations-table.html', locations_history = locations_history, msg=msg)
-     else:
-        msg = 'No location history for the device , check and try again'
-     return redirect(url_for('home'), msg) 
+         if locations_history:
+            msg = 'Locations fetched succesifully'
+            return render_template('main/pages/tables/locations-table.html', locations_history = locations_history, msg=msg)
+         else:
+            msg = 'No location history for the device , check and try again'
+    return redirect(url_for('home'), msg)
 
 
 
@@ -199,13 +296,13 @@ def save_sick_traces():
 sick_traces = []
 
 def load_sick_traces():
-    n = len(os.listdir("data"))
+    n = len(os.listdir("mysite/data"))
     for i in range(1, n+1):
-        with open("data/" + str(i) + ".json") as f:
+        with open("mysite/data/" + str(i) + ".json") as f:
             sick_traces.append(json.load(f))
 
 
-# http://heartbeat/<offset>/ 
+# http://heartbeat/<offset>/
 @app.route('/heartbeat/<offset>')
 def heartbeat(offset):
     load_sick_traces()
