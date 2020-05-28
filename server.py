@@ -127,11 +127,64 @@ def home():
     # User is not loggedin redirect to login page
     return redirect(url_for('login'))
 
+# Errors definations
+def error_403():
+    return render_template('main/errors/403.html')
 
-# http://localhost:5000/- this will be error 404 page
-@app.route('/')
 def error_404():
     return render_template('main/errors/404.html')
+
+def error_500():
+    return render_template('main/errors/500.html')
+
+def error_505():
+    return render_template('main/errors/505.html')
+
+# Error listeners
+@app.errorhandler(403)
+def error403(error=None):
+    message = {
+        'status': 403,
+        'message': 'The request was valid, but the server is refusing action. You might not have the necessary permissions for a resource, or may need an account of some sort',
+    }
+    resp = jsonify(message)
+    resp.status_code = 403
+
+    return resp and error_403()
+
+@app.errorhandler(404)
+def error404(error=None):
+    message = {
+        'status': 404,
+        'message': 'Not Found: ' + request.url,
+    }
+    resp = jsonify(message)
+    resp.status_code = 404
+
+    return resp and error_404()
+
+@app.errorhandler(500)
+def error500(error=None):
+    message = {
+        'status': 500,
+        'message': 'Unexpected condition was encountered and no more specific message is suitable.',
+    }
+    resp = jsonify(message)
+    resp.status_code = 500
+
+    return resp and error_500()
+
+@app.errorhandler(505)
+def error505(error=None):
+    message = {
+        'status': 505,
+        'message': 'The server does not support the HTTP protocol version used in the request.',
+    }
+    resp = jsonify(message)
+    resp.status_code = 505
+
+    return resp and error_505()
+
 
 
 
@@ -165,21 +218,12 @@ def addlocation():
             resp = {'message':'Location added successifully', 'status_code': 200}
             return jsonify(resp)
         else:
-            return not_found()
+            return error404()
     except Exception as e:
            print(e)
-           return not_found()
-    return not_found()
-@app.errorhandler(404)
-def not_found(error=None):
-    message = {
-        'status': 404,
-        'message': 'Not Found: ' + request.url,
-    }
-    resp = jsonify(message)
-    resp.status_code = 404
+           return error404()
+    return error404()
 
-    return resp
 
 @app.route('/addUser/', methods=['GET','POST'])
 def addUser():
@@ -213,11 +257,11 @@ def addUser():
                 return jsonify(resp)
 
         else:
-            return not_found()
+            return error404()
     except Exception as e:
            print(e)
-           return not_found()
-    return not_found()
+           return error404()
+    return error404()
 
 
 @app.route('/loginUser/', methods=['GET','POST'])
@@ -252,11 +296,11 @@ def loginUser():
                     'data': {'email':'No email registered'}}
                     return jsonify(resp)
         else:
-            return not_found()
+            return error404()
     except Exception as e:
            print(e)
-           return not_found()
-    return not_found()
+           return error404()
+    return error404()
 
 
 locations = ([
