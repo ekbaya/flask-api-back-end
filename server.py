@@ -179,7 +179,7 @@ def not_found(error=None):
     resp = jsonify(message)
     resp.status_code = 404
 
-    return resp
+    return resp and redirect(url_for('error_404'))
 
 @app.route('/addUser/', methods=['GET','POST'])
 def addUser():
