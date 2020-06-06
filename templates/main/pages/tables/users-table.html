@@ -262,16 +262,13 @@
                         </tr>
                       </thead>
                       <tbody>
+                        {% for row in data %}
                         <tr>
-                          <td class="text-left">1</td>
-                          <td>eliasbaya1223@gmail.com</td>
-                          <td>06-06-2020</td>
+                          <td class="text-left">{{row['user_id']}}</td>
+                          <td>{{row['email']}}</td>
+                          <td>{{row['date_created']}}</td>    
                         </tr>
-                        <tr>
-                          <td class="text-left">2</td>
-                          <td>Davinwangari@gmail.com</td>
-                          <td>06-06-2020</td>
-                        </tr>
+                        {% endfor %}
                       </tbody>
                     </table>
                   </div>
