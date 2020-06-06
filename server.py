@@ -188,18 +188,18 @@ def error505(error=None):
 
 
 
-# http://localhost:5000/admin/locations_table- this will open tables page
-@app.route('/admin/locations_table')
+# http://localhost:5000/admin/users_table- this will open tables page
+@app.route('/admin/users_table')
 def locations_table():
-    return render_template('main/pages/tables/locations-table.html')
+    return render_template('main/pages/tables/users-table.html')
 
 
 
 
 # http://localhost:5000/admin/charts- this will open tables page
-@app.route('/admin/charts')
-def charts():
-    return render_template('main/pages/charts/chartjs.html')
+@app.route('/admin/sickTraces')
+def sickTraces():
+    return render_template('main/pages/sick/traces.html')
 
 
 @app.route('/addlocation/', methods=['POST'])
