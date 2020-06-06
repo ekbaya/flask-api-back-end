@@ -40,15 +40,15 @@
               </a>
             </div>
             <div class="mdc-list-item mdc-drawer-item">
-              <a class="mdc-drawer-link" href="../../pages/tables/locations-table.html">
+              <a class="mdc-drawer-link" href="../../pages/tables/users-table.html">
                 <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">grid_on</i>
-                Locations
+                Users
               </a>
             </div>
             <div class="mdc-list-item mdc-drawer-item">
-              <a class="mdc-drawer-link" href="{{url_for('charts')}}">
+              <a class="mdc-drawer-link" href="{{url_for('sickTraces')}}">
                 <i class="material-icons mdc-list-item__start-detail mdc-drawer-item-icon" aria-hidden="true">pie_chart_outlined</i>
-                Charts
+                Sick Traces
               </a>
             </div>
       </div>
@@ -251,83 +251,24 @@
             <div class="mdc-layout-grid__inner">
               <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
                 <div class="mdc-card p-0">
-                  <h6 class="card-title card-padding pb-0">Location History</h6>
+                  <h6 class="card-title card-padding pb-0">Registered Users</h6>
                   <div class="table-responsive">
                     <table class="table">
                       <thead>
                         <tr>
-                          <th class="text-left">Device</th>
-                          <th>latitude</th>
-                          <th>longitude</th>
-                          <th>time</th>
+                          <th class="text-left">Number</th>
+                          <th>Email</th>
+                          <th>Date created</th>
                         </tr>
                       </thead>
                       <tbody>
+                        {% for row in data %}
                         <tr>
-                          <td class="text-left">elias</td>
-                          <td>1.59</td>
-                          <td>6.0</td>
-                          <td>50</td>
+                          <td class="text-left">{{row['user_id']}}</td>
+                          <td>{{row['email']}}</td>
+                          <td>{{row['date_created']}}</td>    
                         </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>1.59</td>
-                          <td>2.5</td>
-                          <td>35</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>1.4</td>
-                          <td>4.0</td>
-                          <td>40</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>1.7</td>
-                          <td>3.0</td>
-                          <td>34</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>2.49</td>
-                          <td>4.0</td>
-                          <td>45</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>0.78</td>
-                          <td>5.2</td>
-                          <td>35</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>1.59</td>
-                          <td>6.0</td>
-                          <td>50</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>1.59</td>
-                          <td>6.0</td>
-                          <td>50</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>0.45</td>
-                          <td>5.0</td>
-                          <td>45</td>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>0.67</td>
-                          <td>5.0</td>
-                          <td>56</td>
-                        </tr>
-                        <tr>
-                          <td class="text-left">elias</td>
-                          <td>0.59</td>
-                          <td>8.34</td>
-                          <td>43</td>
-                        </tr>
+                        {% endfor %}
                       </tbody>
                     </table>
                   </div>

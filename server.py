@@ -187,19 +187,10 @@ def error505(error=None):
 
 
 
-
-# http://localhost:5000/admin/locations_table- this will open tables page
-@app.route('/admin/locations_table')
-def locations_table():
-    return render_template('main/pages/tables/locations-table.html')
-
-
-
-
-# http://localhost:5000/admin/charts- this will open tables page
-@app.route('/admin/charts')
-def charts():
-    return render_template('main/pages/charts/chartjs.html')
+# http://localhost:5000/admin/sickTraces- this will open tables page
+@app.route('/admin/sickTraces')
+def sickTraces():
+    return render_template('main/pages/sick/traces.html')
 
 
 @app.route('/addlocation/', methods=['POST'])
@@ -302,6 +293,17 @@ def loginUser():
            return error404()
     return error404()
 
+@app.route('/users/', methods=['GET','POST'])
+def users():
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT user_id, email, date_created FROM users')
+
+        data = cursor.fetchall()
+        return render_template('main/pages/tables/users-table.html', data=data)
+    except Exception as e:
+        print(e)
+        return error_500()
 
 locations = ([
     [52.403049, 16.950697, 1586015671],
