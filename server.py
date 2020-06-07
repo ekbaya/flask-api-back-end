@@ -317,6 +317,11 @@ def admins():
         print(e)
         return error_500()
 
+@app.route('/lockscreen/')
+def lockscreen():
+    os.system('gnome-screensaver-command –-lock')
+    return redirect(url_for('logout'))
+
 locations = ([
     [52.403049, 16.950697, 1586015671],
     [52.403001, 16.950648, 1586015676]
