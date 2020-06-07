@@ -97,11 +97,9 @@
                     <div class="item-thumbnail item-thumbnail-icon-only">
                       <i class="mdi mdi-settings-outline text-primary"></i>                      
                     </div>
-                    <a href="{{url_for('logout')}}">
-                      <div class="item-content d-flex align-items-start flex-column justify-content-center">
-                        <h6 class="item-subject font-weight-normal">Logout</h6>
-                      </div>
-                    </a>
+                    <div class="item-content d-flex align-items-start flex-column justify-content-center">
+                      <h6 class="item-subject font-weight-normal">Logout</h6>
+                    </div>
                   </li>
                 </ul>
               </div>
@@ -236,9 +234,11 @@
                     <div class="item-thumbnail item-thumbnail-icon-only">
                       <i class="mdi mdi-logout-variant text-primary"></i>                      
                     </div>
-                    <div class="item-content d-flex align-items-start flex-column justify-content-center">
-                      <h6 class="item-subject font-weight-normal">Logout</h6>
-                    </div>
+                    <a href="{{url_for('logout')}}">
+                      <div class="item-content d-flex align-items-start flex-column justify-content-center">
+                        <h6 class="item-subject font-weight-normal">Logout</h6>
+                      </div>
+                    </a>
                   </li>
                 </ul>
               </div>
@@ -253,22 +253,24 @@
             <div class="mdc-layout-grid__inner">
               <div class="mdc-layout-grid__cell stretch-card mdc-layout-grid__cell--span-12">
                 <div class="mdc-card p-0">
-                  <h6 class="card-title card-padding pb-0">Registered Users</h6>
+                  <h6 class="card-title card-padding pb-0">System Admins</h6>
                   <div class="table-responsive">
                     <table class="table">
                       <thead>
                         <tr>
                           <th class="text-left">Number</th>
+                          <th>Firstname</th>
+                          <th>Lastname</th>
                           <th>Email</th>
-                          <th>Date created</th>
                         </tr>
                       </thead>
                       <tbody>
                         {% for row in data %}
                         <tr>
                           <td class="text-left">{{row['user_id']}}</td>
-                          <td>{{row['email']}}</td>
-                          <td>{{row['date_created']}}</td>    
+                          <td>{{row['firstname']}}</td>
+                          <td>{{row['lastname']}}</td>
+                          <td>{{row['email']}}</td>     
                         </tr>
                         {% endfor %}
                       </tbody>

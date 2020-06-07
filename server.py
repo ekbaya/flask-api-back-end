@@ -13,6 +13,7 @@ import MySQLdb.cursors
 import re
 from flask import jsonify
 from flask_bcrypt import Bcrypt
+from passlib.hash import sha256_crypt
 import datetime
 
 
@@ -30,6 +31,8 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'mysql'
 
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
 # Intialize MySQL
 mysql = MySQL(app)
 
@@ -43,6 +46,7 @@ def login():
         # Create variables for easy access
         email = request.form['email']
         password = request.form['password']
+        # password = sha256_crypt.encrypt(request.form['password'])
 
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -90,7 +94,7 @@ def register():
         email = request.form['email']
         firstname = request.form['firstname']
         lastname = request.form['lastname']
-        password = request.form['password']
+        password = sha256_crypt.encrypt(request.form['password'])
 
           # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -105,9 +109,7 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            pw_hash = bcrypt.generate_password_hash(password)
-
-            cursor.execute('INSERT INTO accounts VALUES (%s, %s, %s, %s, %s)', (None, firstname, lastname, email, pw_hash,))
+            cursor.execute('INSERT INTO accounts VALUES (%s, %s, %s, %s, %s)', (None, firstname, lastname, email, password,))
             mysql.connection.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
@@ -305,39 +307,57 @@ def users():
         print(e)
         return error_500()
 
-locations = ([
-    [52.403049, 16.950697, 1586015671],
-    [52.403001, 16.950648, 1586015676]
-])
+@app.route('/admins/', methods=['GET','POST'])
+def admins():
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT user_id, firstname, lastname, email FROM accounts')
 
+        data = cursor.fetchall()
+        return render_template('main/pages/tables/admins-table.html', data=data)
+    except Exception as e:
+        print(e)
+        return error_500()
+
+locations = []
 
 # http://localhost:5000/search/<device>'/
 @app.route('/search/', methods=['GET','POST'])
-def search(data):
-    if request.method == "POST":
-        # Output message if something goes wrong...
-         msg = ''
-         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-         cursor.execute('SELECT latitude, longitude, time_stamp FROM locations WHERE device = %s', (data,))
-         locations_history = cursor.fetchall()
+def search():
+     # Output message if something goes wrong...
+    msg = ''
+     # Check if "email" and POST requests exist (user submitted form)
+    if request.method == 'POST' and 'device' in request.form:
+        # Create variables for easy access
+        device = request.form['device']
 
-         if locations_history:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT latitude, longitude, time_stamp FROM locations WHERE device = %s', (device,))
+        locations_history = cursor.fetchall()
+
+        if locations_history:
             msg = 'Locations fetched succesifully'
-            return render_template('main/pages/tables/locations-table.html', locations_history = locations_history, msg=msg)
-         else:
+            for row in locations_history:
+                list1 = [float(row['latitude']),float(row['longitude']),float(row['time_stamp'])]
+                locations.append(list1)
+            return save_sick_traces(locations)
+        else:
             msg = 'No location history for the device , check and try again'
-    return redirect(url_for('home'), msg)
+    return render_template('main/pages/sick/traces.html', msg=msg)
 
 
 
 
 # http://localhost:5000/save/ - this will be called to execute saving of a new sick trace in the data folder
 @app.route('/save/')
-def save_sick_traces():
+def save_sick_traces(locations):
+     # Output message if something goes wrong...
+     msg = ''
      n = len(os.listdir("data"))
      with open("data/"+ str(n+1) + ".json", 'w') as f:
         json.dump(locations, f)
-        return redirect(url_for('home'))
+        msg = 'Locations added succesifully'
+        return render_template('main/pages/sick/traces.html', msg=msg)
 
 sick_traces = []
 
