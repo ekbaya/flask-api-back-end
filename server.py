@@ -31,6 +31,8 @@ app.config['MYSQL_USER'] = 'root'
 app.config['MYSQL_PASSWORD'] = ''
 app.config['MYSQL_DB'] = 'mysql'
 
+app.config['MYSQL_CURSORCLASS'] = 'DictCursor'
+
 # Intialize MySQL
 mysql = MySQL(app)
 
@@ -317,44 +319,45 @@ def admins():
         print(e)
         return error_500()
 
-@app.route('/lockscreen/')
-def lockscreen():
-    os.system('gnome-screensaver-command –-lock')
-    return redirect(url_for('logout'))
-
-locations = ([
-    [52.403049, 16.950697, 1586015671],
-    [52.403001, 16.950648, 1586015676]
-])
-
+locations = []
 
 # http://localhost:5000/search/<device>'/
 @app.route('/search/', methods=['GET','POST'])
-def search(data):
-    if request.method == "POST":
-        # Output message if something goes wrong...
-         msg = ''
-         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
-         cursor.execute('SELECT latitude, longitude, time_stamp FROM locations WHERE device = %s', (data,))
-         locations_history = cursor.fetchall()
+def search():
+     # Output message if something goes wrong...
+    msg = ''
+     # Check if "email" and POST requests exist (user submitted form)
+    if request.method == 'POST' and 'device' in request.form:
+        # Create variables for easy access
+        device = request.form['device']
 
-         if locations_history:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT latitude, longitude, time_stamp FROM locations WHERE device = %s', (device,))
+        locations_history = cursor.fetchall()
+
+        if locations_history:
             msg = 'Locations fetched succesifully'
-            return render_template('main/pages/tables/locations-table.html', locations_history = locations_history, msg=msg)
-         else:
+            for row in locations_history:
+                list1 = [float(row['latitude']),float(row['longitude']),float(row['time_stamp'])]
+                locations.append(list1)
+            return save_sick_traces(locations)
+        else:
             msg = 'No location history for the device , check and try again'
-    return redirect(url_for('home'), msg)
+    return render_template('main/pages/sick/traces.html', msg=msg)
 
 
 
 
 # http://localhost:5000/save/ - this will be called to execute saving of a new sick trace in the data folder
 @app.route('/save/')
-def save_sick_traces():
+def save_sick_traces(locations):
+     # Output message if something goes wrong...
+     msg = ''
      n = len(os.listdir("data"))
      with open("data/"+ str(n+1) + ".json", 'w') as f:
         json.dump(locations, f)
-        return redirect(url_for('home'))
+        msg = 'Locations added succesifully'
+        return render_template('main/pages/sick/traces.html', msg=msg)
 
 sick_traces = []
 
