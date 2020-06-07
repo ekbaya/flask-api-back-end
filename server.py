@@ -13,6 +13,7 @@ import MySQLdb.cursors
 import re
 from flask import jsonify
 from flask_bcrypt import Bcrypt
+from passlib.hash import sha256_crypt
 import datetime
 
 
@@ -43,6 +44,7 @@ def login():
         # Create variables for easy access
         email = request.form['email']
         password = request.form['password']
+        # password = sha256_crypt.encrypt(request.form['password'])
 
         # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -90,7 +92,7 @@ def register():
         email = request.form['email']
         firstname = request.form['firstname']
         lastname = request.form['lastname']
-        password = request.form['password']
+        password = sha256_crypt.encrypt(request.form['password'])
 
           # Check if account exists using MySQL
         cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
@@ -105,9 +107,7 @@ def register():
             msg = 'Please fill out the form!'
         else:
             # Account doesnt exists and the form data is valid, now insert new account into accounts table
-            pw_hash = bcrypt.generate_password_hash(password)
-
-            cursor.execute('INSERT INTO accounts VALUES (%s, %s, %s, %s, %s)', (None, firstname, lastname, email, pw_hash,))
+            cursor.execute('INSERT INTO accounts VALUES (%s, %s, %s, %s, %s)', (None, firstname, lastname, email, password,))
             mysql.connection.commit()
             msg = 'You have successfully registered!'
     elif request.method == 'POST':
@@ -301,6 +301,18 @@ def users():
 
         data = cursor.fetchall()
         return render_template('main/pages/tables/users-table.html', data=data)
+    except Exception as e:
+        print(e)
+        return error_500()
+
+@app.route('/admins/', methods=['GET','POST'])
+def admins():
+    try:
+        cursor = mysql.connection.cursor(MySQLdb.cursors.DictCursor)
+        cursor.execute('SELECT user_id, firstname, lastname, email FROM accounts')
+
+        data = cursor.fetchall()
+        return render_template('main/pages/tables/admins-table.html', data=data)
     except Exception as e:
         print(e)
         return error_500()
